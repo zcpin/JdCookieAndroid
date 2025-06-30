@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Jd Cookie</string>
+    <string name="cookie">推送Cookie</string>
+    <string name="handoff">切换账号</string>
+    <string name="config">配置信息</string>
+    <string name="expand">展开操作</string>
+    <string name="base_url">Base URL</string>
+    <string name="secret_id">Secret Id</string>
+    <string name="secret_key">Secret Key</string>
+    <string name="save">保存</string>
+    <string name="config_info">配置信息</string>
+    <string name="open">打开后台</string>
+</resources>
