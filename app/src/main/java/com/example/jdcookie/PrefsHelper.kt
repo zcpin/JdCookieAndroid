@@ -21,4 +21,11 @@ object PrefsHelper {
         val sharedPreferences = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
         return sharedPreferences.all
     }
+
+    fun clear(prefName: String, context: Context) {
+        val sharedPreferences = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
+        sharedPreferences.edit {
+            clear()
+        }
+    }
 }

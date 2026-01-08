@@ -66,11 +66,11 @@ class QingLong(private val context: Context) {
 
     // 添加环境变量
     suspend fun addEnv(name: String, value: String, remark: String? = ""): Boolean {
-        var url = "$baseUrl${Constants.ApiPaths.ADD_ENV}"
+        val url = "$baseUrl${Constants.ApiPaths.ADD_ENV}"
         val body = mapOf("name" to name, "value" to value, "remark" to remark)
         // 将body转换为json字符串
         val bodyStr = HttpHelper.gson.toJson(body)
-        var result = HttpHelper.post<Response<EnvInfo>>(url, bodyStr, setToken())
+        val result = HttpHelper.post<Response<EnvInfo>>(url, bodyStr, setToken())
         if (result.code != 200) {
             throw Exception("添加环境失败")
         }
@@ -80,13 +80,13 @@ class QingLong(private val context: Context) {
 
     // 更新环境变量
     suspend fun updateEnv(id: Int, name: String, value: String): Boolean {
-        var url = "$baseUrl${Constants.ApiPaths.UPDATE_ENV}"
+        val url = "$baseUrl${Constants.ApiPaths.UPDATE_ENV}"
         Log.d("QingLong", "url: $url")
         val body = mapOf("id" to id, "name" to name, "value" to value)
         // 将body转换为json字符串
         val bodyStr = HttpHelper.gson.toJson(body)
         Log.d("QingLong", "bodyStr: $bodyStr")
-        var result = HttpHelper.put<Response<EnvInfo>>(url, bodyStr, setToken())
+        val result = HttpHelper.put<Response<EnvInfo>>(url, bodyStr, setToken())
         if (result.code != 200) {
             throw Exception("更新环境失败")
         }

@@ -41,6 +41,8 @@ class ConfigActivity : AppCompatActivity() {
                 save(prefName, this@ConfigActivity, "baseUrl", baseUrl)
                 save(prefName, this@ConfigActivity, "secretId", secretId)
                 save(prefName, this@ConfigActivity, "secretKey", secretKey)
+                // 清除旧的 Token 缓存，因为配置已更新
+                clear(Constants.PREF_QL_NAME, this@ConfigActivity)
             }
             Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show()
             finish()
