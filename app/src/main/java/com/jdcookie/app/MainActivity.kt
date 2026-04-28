@@ -1,20 +1,20 @@
-package com.example.jdcookie
+package com.jdcookie.app
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.jdcookie.databinding.ActivityMainBinding
-import com.example.jdcookie.model.JdCookie
+import com.jdcookie.app.databinding.ActivityMainBinding
+import com.jdcookie.app.model.JdCookie
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -33,29 +33,25 @@ class MainActivity : AppCompatActivity() {
 
         webView = viewBinding.webView
 
-
         webView.settings.javaScriptEnabled = true
         CookieManager.getInstance().setAcceptCookie(true)
         webView.webChromeClient = android.webkit.WebChromeClient()
         webView.webViewClient = object : WebViewClient() {
-            // 告诉web view自己处理跳转页面
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
                 request: WebResourceRequest?
             ): Boolean {
                 val url = request?.url.toString()
-                // 当url是以MAIN_URL开头，则重定向到MY_URL
                 if (url.startsWith(Constants.MAIN_URL)) {
                     view?.loadUrl(targetUrl)
                     return true
                 }
-                view?.loadUrl(url) // 告诉 WebView 自己加载跳转页面
-                return true // 表示“我们已经处理了这个请求”
+                view?.loadUrl(url)
+                return true
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                // 隐藏id=m_common_tip和class=modal的元素
                 val hideCss = """
                     javascript:(function(){
                         document.getElementById('m_common_tip').style.display='none';
@@ -64,13 +60,40 @@ class MainActivity : AppCompatActivity() {
                 """.trimIndent()
                 webView.evaluateJavascript(hideCss, null)
             }
+
+            override fun onReceivedError(
+                view: WebView?,
+                errorCode: Int,
+                description: String?,
+                failingUrl: String?
+            ) {
+                super.onReceivedError(view, errorCode, description, failingUrl)
+                LogHelper.error(this@MainActivity, "WebView", "加载失败: $description (code=$errorCode)")
+                Toast.makeText(this@MainActivity, "页面加载失败，请检查网络", Toast.LENGTH_SHORT).show()
+            }
+
+            @Deprecated("Deprecated in Java")
+            override fun onReceivedHttpError(
+                view: WebView?,
+                request: WebResourceRequest?,
+                errorResponse: WebResourceResponse?
+            ) {
+                super.onReceivedHttpError(view, request, errorResponse)
+                val statusCode = errorResponse?.statusCode ?: -1
+                LogHelper.error(this@MainActivity, "WebView", "HTTP错误: $statusCode ${errorResponse?.reasonPhrase}")
+            }
         }
         webView.loadUrl(targetUrl)
 
         // 设置配置按钮点击事件
         viewBinding.config.setOnClickListener {
             startActivity(Intent(this, ConfigActivity::class.java))
-            // 隐藏操作按钮
+            hiddenActionBar()
+        }
+
+        // 日志面板
+        viewBinding.logs.setOnClickListener {
+            startActivity(Intent(this, LogActivity::class.java))
             hiddenActionBar()
         }
 
@@ -88,7 +111,6 @@ class MainActivity : AppCompatActivity() {
             val secretKey = PrefsHelper.get(Constants.PREF_CONFIG_NAME, this, "secretKey")
             if (baseUrl.isBlank() || secretId.isBlank() || secretKey.isBlank()) {
                 Toast.makeText(this, "请先配置baseUrl、secretId、secretKey", Toast.LENGTH_SHORT).show()
-                // 延迟1s后跳转到配置页面
                 lifecycleScope.launch {
                     delay(500)
                     startActivity(Intent(this@MainActivity, ConfigActivity::class.java))
@@ -97,66 +119,60 @@ class MainActivity : AppCompatActivity() {
             }
             lifecycleScope.launch {
                 val cookies = CookieManager.getInstance().getCookie(targetUrl)
-                Log.d("MainActivity", "cookie: $cookies")
                 val ptKey = getCookieValue(cookies, "pt_key")
                 val ptPin = getCookieValue(cookies, "pt_pin")
                 if (ptKey == null || ptPin == null) {
+                    LogHelper.warn(this@MainActivity, "MainActivity", "未获取到Cookie，请先登录")
                     Toast.makeText(this@MainActivity, "未获取到cookie", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
                 val cookie = JdCookie(ptKey, ptPin)
+                LogHelper.info(this@MainActivity, "MainActivity", "开始推送Cookie: pt_pin=$ptPin")
                 try {
                     val result = QingLong(this@MainActivity).pushCookie(cookie)
-                    Log.d("MainActivity", "result: $result")
                     if (result) {
+                        LogHelper.info(this@MainActivity, "MainActivity", "推送成功")
                         Toast.makeText(this@MainActivity, "推送成功", Toast.LENGTH_SHORT).show()
                     } else {
+                        LogHelper.error(this@MainActivity, "MainActivity", "推送返回失败")
                         Toast.makeText(this@MainActivity, "推送失败", Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    LogHelper.error(this@MainActivity, "MainActivity", "推送异常: ${e.message}")
                     Toast.makeText(this@MainActivity, "推送失败: ${e.message}", Toast.LENGTH_SHORT)
                         .show()
                 }
-                // 隐藏操作按钮
                 hiddenActionBar()
-
             }
         }
 
         // 打开后台页面
         viewBinding.open.setOnClickListener {
-            // 获取baseUrl
             val baseUrl = PrefsHelper.get(Constants.PREF_CONFIG_NAME, this, "baseUrl")
             if (baseUrl.isBlank()) {
                 Toast.makeText(this, "请先配置baseUrl", Toast.LENGTH_SHORT).show()
-                // 延迟1s后跳转到配置页面
                 lifecycleScope.launch {
                     delay(500)
                     startActivity(Intent(this@MainActivity, ConfigActivity::class.java))
                 }
                 return@setOnClickListener
             }
-            // 将baseUrl传递到下个页面
             val intent = Intent(this, BackendActivity::class.java)
             intent.putExtra("baseUrl", baseUrl)
             startActivity(intent)
-            // 隐藏操作按钮
             hiddenActionBar()
         }
 
         // 设置切换账号按钮点击事件
         viewBinding.handoff.setOnClickListener {
-            // 删除所有cookie
             CookieManager.getInstance().removeAllCookies(null)
             CookieManager.getInstance().flush()
+            LogHelper.info(this, "MainActivity", "已清除Cookie，跳转登录页")
             webView.loadUrl(Constants.LOGIN_URL)
-            // 隐藏操作按钮
             hiddenActionBar()
         }
     }
 
-    // 获取cookie值
     private fun getCookieValue(cookie: String, name: String): String? {
         if (cookie.isEmpty()) return null
         return cookie.split(";").map { it.trim() }
@@ -167,5 +183,15 @@ class MainActivity : AppCompatActivity() {
     private fun hiddenActionBar() {
         viewBinding.actionButtons.visibility = View.GONE
         isExpanded = false
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            @Suppress("DEPRECATION")
+            super.onBackPressed()
+        }
     }
 }

@@ -1,10 +1,10 @@
-package com.example.jdcookie
+package com.jdcookie.app
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.example.jdcookie.databinding.ActivityConfigBinding
+import com.jdcookie.app.databinding.ActivityConfigBinding
 
 class ConfigActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityConfigBinding
@@ -22,18 +22,19 @@ class ConfigActivity : AppCompatActivity() {
         viewBinding.secretKey.setText(PrefsHelper.get(prefName, this, "secretKey"))
 
         viewBinding.save.setOnClickListener {
-            val baseUrl = viewBinding.baseUrl.text.toString().trim()
+            var baseUrl = viewBinding.baseUrl.text.toString().trim()
             val secretId = viewBinding.secretId.text.toString().trim()
             val secretKey = viewBinding.secretKey.text.toString().trim()
             if (!baseUrl.startsWith("http")) {
                 Toast.makeText(this, "baseUrl必须以http开头", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if (secretId == "") {
+            baseUrl = baseUrl.trimEnd('/')
+            if (secretId.isBlank()) {
                 Toast.makeText(this, "secretId不能为空", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if (secretKey == "") {
+            if (secretKey.isBlank()) {
                 Toast.makeText(this, "secretKey不能为空", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }

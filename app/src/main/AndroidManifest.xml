@@ -18,6 +18,9 @@
             android:name=".BackendActivity"
             android:exported="false" />
         <activity
+            android:name=".LogActivity"
+            android:exported="false" />
+        <activity
             android:name=".ConfigActivity"
             android:exported="false" />
         <activity

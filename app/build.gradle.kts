@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.jdcookie"
+    namespace = "com.jdcookie.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.jdcookie"
+        applicationId = "com.jdcookie.app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

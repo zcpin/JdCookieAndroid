@@ -1,4 +1,4 @@
-package com.example.jdcookie
+package com.jdcookie.app
 
 import android.content.Context
 import androidx.core.content.edit

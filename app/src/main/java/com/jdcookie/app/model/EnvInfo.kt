@@ -1,4 +1,4 @@
-package com.example.jdcookie.model
+package com.jdcookie.app.model
 
 data class EnvInfo(
     val id: Int,

@@ -1,4 +1,4 @@
-package com.example.jdcookie
+package com.jdcookie.app
 
 object Constants {
     const val PREF_CONFIG_NAME = "AppConfig"

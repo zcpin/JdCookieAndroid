@@ -1,4 +1,4 @@
-package com.example.jdcookie
+package com.jdcookie.app
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -8,7 +8,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.example.jdcookie.databinding.ActivityBackendBinding
+import com.jdcookie.app.databinding.ActivityBackendBinding
 
 class BackendActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityBackendBinding
@@ -46,5 +46,15 @@ class BackendActivity : AppCompatActivity() {
             }
         }
         webView.loadUrl(baseUrl)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            @Suppress("DEPRECATION")
+            super.onBackPressed()
+        }
     }
 }

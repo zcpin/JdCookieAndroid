@@ -52,6 +52,13 @@
             android:layout_marginBottom="16dp"
             android:contentDescription="@string/config"
             app:srcCompat="@drawable/config" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/logs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/logs"
+            app:srcCompat="@drawable/log" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
