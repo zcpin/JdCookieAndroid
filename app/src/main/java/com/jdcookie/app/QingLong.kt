@@ -77,12 +77,12 @@ class QingLong(private val context: Context) {
     // 添加环境变量
     suspend fun addEnv(name: String, value: String, remark: String? = ""): Boolean {
         val url = "$baseUrl${Constants.ApiPaths.ADD_ENV}"
-        val body = mapOf("name" to name, "value" to value, "remark" to remark)
+        val body = listOf(mapOf("name" to name, "value" to value, "remarks" to remark))
         val bodyStr = HttpHelper.gson.toJson(body)
         LogHelper.info(context, "QingLong", "添加环境变量: $remark")
         val token = getToken()
         val headers = mapOf(Constants.Headers.AUTHORIZATION to "Bearer $token")
-        val result = HttpHelper.post<Response<EnvInfo>>(url, bodyStr, headers)
+        val result = HttpHelper.post<Response<List<EnvInfo>>>(url, bodyStr, headers)
         if (result.code != 200) {
             LogHelper.error(context, "QingLong", "添加环境变量失败，code: ${result.code}, msg: ${result.message}")
             throw Exception("添加环境失败: ${result.message}")
